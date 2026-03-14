@@ -16,5 +16,8 @@ frontend/dist/
 
 daily-market-intel-agent/
 
+# Secrets
+.env
+
 # Runtime data
 backend/data/

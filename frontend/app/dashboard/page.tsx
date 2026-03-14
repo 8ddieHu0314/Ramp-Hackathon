@@ -86,7 +86,7 @@ export default function DashboardPage() {
                 value={p.id}
                 className="rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-primary/5 data-[state=active]:text-foreground data-[state=active]:shadow-none"
               >
-                {p.name}
+                {p.product_name}
               </TabsTrigger>
             ))}
           </TabsList>
