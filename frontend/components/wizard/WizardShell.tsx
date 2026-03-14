@@ -17,7 +17,7 @@ const STEPS = [
 
 function useIsNextDisabled(currentStep: number, formData: ReturnType<typeof useWizard>['formData']): boolean {
   if (currentStep === 0) {
-    return !formData.name.trim() || !formData.productDescription.trim()
+    return !formData.productUrl.trim() || !formData.productDescription.trim()
   }
   if (currentStep === 1) {
     const hasCompetitor = formData.competitors.some((c) => c.url.trim())

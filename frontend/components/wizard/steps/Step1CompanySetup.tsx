@@ -18,14 +18,15 @@ export function Step1CompanySetup() {
 
       <div className="space-y-4 max-w-lg mx-auto">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium" htmlFor="name">
-            Product Name <span className="text-destructive">*</span>
+          <label className="text-sm font-medium" htmlFor="productUrl">
+            Product URL <span className="text-destructive">*</span>
           </label>
           <Input
-            id="name"
-            placeholder="Ramp"
-            value={formData.name}
-            onChange={(e) => updateFormData({ name: e.target.value })}
+            id="productUrl"
+            type="url"
+            placeholder="https://ramp.com"
+            value={formData.productUrl}
+            onChange={(e) => updateFormData({ productUrl: e.target.value })}
           />
         </div>
 
