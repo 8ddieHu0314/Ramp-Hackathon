@@ -25,8 +25,9 @@ def _restore_schedules() -> None:
     for project in project_store.list_projects():
         if project.get("schedule_enabled"):
             hour = project.get("schedule_hour", 8)
-            scheduler_service.schedule_project(project["id"], hour, _scheduled_run)
-            logger.info("Restored schedule for project %s at %02d:00 UTC", project["id"], hour)
+            frequency = project.get("schedule_frequency", "daily")
+            scheduler_service.schedule_project(project["id"], hour, _scheduled_run, frequency)
+            logger.info("Restored schedule for project %s at %02d:00 UTC (%s)", project["id"], hour, frequency)
 
 
 @asynccontextmanager

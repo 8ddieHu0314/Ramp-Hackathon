@@ -18,6 +18,9 @@ export interface WizardFormData {
   githubRepos: GitHubRepoInput[]
   keywords: string[]
   autoGenerateKeywords: boolean
+  emailEnabled: boolean
+  emailAddress: string
+  frequency: 'daily' | 'weekly' | 'biweekly'
 }
 
 // ── API Response Types ──

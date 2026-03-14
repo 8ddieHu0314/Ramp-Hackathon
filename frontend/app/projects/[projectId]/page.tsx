@@ -3,21 +3,15 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { getProject, listReports, getReport } from '@/lib/api'
-import type { ProjectResponse, ReportSummary, ReportDetail } from '@/lib/types'
+import type { ProjectResponse, ReportDetail } from '@/lib/types'
 import { Loader2, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
 
 export default function ProjectDetailPage() {
   const params = useParams()
   const projectId = params.projectId as string
 
   const [project, setProject] = useState<ProjectResponse | null>(null)
-  const [reports, setReports] = useState<ReportSummary[]>([])
   const [selectedReport, setSelectedReport] = useState<ReportDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadingReport, setLoadingReport] = useState(false)
@@ -26,11 +20,10 @@ export default function ProjectDetailPage() {
     Promise.all([getProject(projectId), listReports(projectId)])
       .then(([p, r]) => {
         setProject(p)
-        const sorted = [...r].sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        )
-        setReports(sorted)
-        if (sorted.length > 0) {
+        if (r.length > 0) {
+          const sorted = [...r].sort(
+            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+          )
           setLoadingReport(true)
           getReport(projectId, sorted[0].report_id)
             .then(setSelectedReport)
@@ -40,16 +33,6 @@ export default function ProjectDetailPage() {
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [projectId])
-
-  const handleSelectReport = async (reportId: string) => {
-    setLoadingReport(true)
-    setSelectedReport(null)
-    try {
-      const report = await getReport(projectId, reportId)
-      setSelectedReport(report)
-    } catch {}
-    setLoadingReport(false)
-  }
 
   if (loading) {
     return (
@@ -79,7 +62,7 @@ export default function ProjectDetailPage() {
         </p>
       </div>
 
-      {reports.length === 0 ? (
+      {!selectedReport && !loadingReport ? (
         <div className="py-16 text-center text-sm text-muted-foreground">
           No reports yet.
         </div>

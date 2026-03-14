@@ -44,6 +44,7 @@ class ProjectResponse(BaseModel):
     email_from: str = "intel@market-intel.dev"
     schedule_enabled: bool = False
     schedule_hour: int = 8
+    schedule_frequency: str = "daily"
     created_at: str
     last_run: str | None = None
 
@@ -86,11 +87,13 @@ class ReportDetail(BaseModel):
 class ScheduleRequest(BaseModel):
     enabled: bool
     hour: int = 8
+    frequency: str = "daily"  # daily | weekly | biweekly
 
 
 class ScheduleResponse(BaseModel):
     enabled: bool
     hour: int
+    frequency: str = "daily"
     next_run: str | None = None
 
 

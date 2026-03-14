@@ -13,6 +13,9 @@ const defaultFormData: WizardFormData = {
   githubRepos: [],
   keywords: [],
   autoGenerateKeywords: true,
+  emailEnabled: false,
+  emailAddress: '',
+  frequency: 'daily',
 }
 
 interface WizardContextValue {

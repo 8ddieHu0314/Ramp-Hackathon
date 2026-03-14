@@ -26,18 +26,20 @@ async def set_schedule(project_id: str, req: ScheduleRequest):
         raise HTTPException(404, "Project not found")
 
     if req.enabled:
-        scheduler_service.schedule_project(project_id, req.hour, _scheduled_run)
+        scheduler_service.schedule_project(project_id, req.hour, _scheduled_run, req.frequency)
     else:
         scheduler_service.unschedule_project(project_id)
 
     project_store.update_project(project_id, {
         "schedule_enabled": req.enabled,
         "schedule_hour": req.hour,
+        "schedule_frequency": req.frequency,
     })
 
     return {
         "enabled": req.enabled,
         "hour": req.hour,
+        "frequency": req.frequency,
         "next_run": scheduler_service.get_next_run(project_id),
     }
 
@@ -51,5 +53,6 @@ async def get_schedule(project_id: str):
     return {
         "enabled": project.get("schedule_enabled", False),
         "hour": project.get("schedule_hour", 8),
+        "frequency": project.get("schedule_frequency", "daily"),
         "next_run": scheduler_service.get_next_run(project_id),
     }

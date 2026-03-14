@@ -2,16 +2,24 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { useWizard } from '@/lib/wizard-context'
-import { createProject, triggerRun, getRunStatus, getReport } from '@/lib/api'
+import { createProject, triggerRun, getRunStatus, getReport, setEmailSettings, setSchedule } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { Loader2, CheckCircle2, AlertCircle, ArrowRight, Rocket } from 'lucide-react'
-import type { RunStatusResponse } from '@/lib/types'
+import type { RunStatusResponse, WizardFormData } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
 type Phase = 'ready' | 'submitting' | 'running' | 'completed' | 'failed'
 
+const FREQUENCY_OPTIONS: { value: WizardFormData['frequency']; label: string; description: string }[] = [
+  { value: 'daily', label: 'Daily', description: 'Every day' },
+  { value: 'weekly', label: 'Weekly', description: 'Every Monday' },
+  { value: 'biweekly', label: 'Biweekly', description: '1st & 15th' },
+]
+
 export function Step3RunAnalysis() {
-  const { formData } = useWizard()
+  const { formData, updateFormData } = useWizard()
   const router = useRouter()
 
   const [phase, setPhase] = useState<Phase>('ready')
@@ -35,6 +43,20 @@ export function Step3RunAnalysis() {
 
     try {
       const project = await createProject(formData)
+
+      // Configure email & schedule if email provided
+      if (formData.emailEnabled && formData.emailAddress.trim()) {
+        await setEmailSettings(project.id, {
+          enabled: true,
+          address: formData.emailAddress.trim(),
+        })
+        await setSchedule(project.id, {
+          enabled: true,
+          hour: 8,
+          frequency: formData.frequency,
+        })
+      }
+
       const { run_id } = await triggerRun(project.id)
 
       setPhase('running')
@@ -68,14 +90,14 @@ export function Step3RunAnalysis() {
     }
   }
 
-  // Ready state — show summary and submit button
+  // Ready state — show summary, email config, and submit button
   if (phase === 'ready') {
     return (
       <div className="space-y-8">
         <div>
           <h2 className="text-xl font-semibold">Ready to analyze</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Review your setup and launch the intelligence pipeline.
+            Review your setup, configure email delivery, and launch the intelligence pipeline.
           </p>
         </div>
 
@@ -89,10 +111,70 @@ export function Step3RunAnalysis() {
             label="GitHub Repos"
             value={formData.githubRepos.map((r) => r.repo).filter(Boolean).join(', ') || 'None'}
           />
-          <SummaryRow
-            label="Keywords"
-            value={formData.autoGenerateKeywords ? 'Auto-generated' : formData.keywords.join(', ') || 'None'}
-          />
+        </div>
+
+        {/* Email delivery section */}
+        <div className="max-w-lg mx-auto space-y-4 rounded-lg border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold">Email Reports</p>
+              <p className="text-xs text-muted-foreground">Get reports delivered to your inbox</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => updateFormData({ emailEnabled: !formData.emailEnabled })}
+              className={cn(
+                'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors',
+                formData.emailEnabled ? 'bg-primary' : 'bg-muted',
+              )}
+            >
+              <span
+                className={cn(
+                  'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform',
+                  formData.emailEnabled ? 'translate-x-5' : 'translate-x-0',
+                )}
+              />
+            </button>
+          </div>
+
+          {formData.emailEnabled && (
+            <div className="space-y-4 pt-2">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" htmlFor="emailAddress">
+                  Email Address
+                </label>
+                <Input
+                  id="emailAddress"
+                  type="email"
+                  placeholder="you@company.com"
+                  value={formData.emailAddress}
+                  onChange={(e) => updateFormData({ emailAddress: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Frequency</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {FREQUENCY_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => updateFormData({ frequency: opt.value })}
+                      className={cn(
+                        'rounded-lg border-2 p-3 text-left transition-all duration-150',
+                        formData.frequency === opt.value
+                          ? 'border-primary bg-primary/5 text-foreground'
+                          : 'border-border bg-background text-muted-foreground hover:border-muted-foreground/40',
+                      )}
+                    >
+                      <p className="text-sm font-semibold">{opt.label}</p>
+                      <p className="text-xs mt-0.5">{opt.description}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-center pt-2">
@@ -151,7 +233,12 @@ export function Step3RunAnalysis() {
           <CheckCircle2 className="h-6 w-6 text-green-500" />
           <div>
             <h2 className="text-xl font-semibold">Analysis Complete</h2>
-            <p className="text-sm text-muted-foreground">Your competitive intelligence report is ready.</p>
+            <p className="text-sm text-muted-foreground">
+              Your competitive intelligence report is ready.
+              {formData.emailEnabled && formData.emailAddress && (
+                <> Reports will be sent {formData.frequency} to {formData.emailAddress}.</>
+              )}
+            </p>
           </div>
         </div>
 

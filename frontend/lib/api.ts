@@ -78,3 +78,25 @@ export async function listReports(projectId: string): Promise<ReportSummary[]> {
 export async function getReport(projectId: string, reportId: string): Promise<ReportDetail> {
   return request(`/api/projects/${projectId}/reports/${reportId}`)
 }
+
+// ── Email & Schedule ──
+
+export async function setEmailSettings(
+  projectId: string,
+  settings: { enabled: boolean; address: string | null; from_address?: string },
+): Promise<void> {
+  await request(`/api/projects/${projectId}/email`, {
+    method: 'PUT',
+    body: JSON.stringify(settings),
+  })
+}
+
+export async function setSchedule(
+  projectId: string,
+  schedule: { enabled: boolean; hour?: number; frequency?: string },
+): Promise<void> {
+  await request(`/api/projects/${projectId}/schedule`, {
+    method: 'POST',
+    body: JSON.stringify(schedule),
+  })
+}
