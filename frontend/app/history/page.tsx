@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { listProjects } from '@/lib/api'
 import type { ProjectResponse } from '@/lib/types'
 import { Loader2 } from 'lucide-react'
+import Link from 'next/link'
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr)
@@ -49,7 +50,7 @@ export default function HistoryPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {sorted.map((project) => (
-            <div key={project.id} className="rounded-lg border border-border bg-card p-5 space-y-4">
+            <Link key={project.id} href={`/projects/${project.id}`} className="block rounded-lg border border-border bg-card p-5 space-y-4 hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer">
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                   <p className="font-semibold text-foreground">{project.name}</p>
@@ -100,7 +101,7 @@ export default function HistoryPage() {
                   Last run: {formatDate(project.last_run)}
                 </p>
               )}
-            </div>
+            </Link>
           ))}
         </div>
       )}
