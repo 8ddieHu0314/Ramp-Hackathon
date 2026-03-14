@@ -42,7 +42,7 @@ export function StatusArea({ status, messages }: StatusAreaProps) {
       <span
         className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${
           status === 'running'
-            ? 'bg-blue-100 text-blue-700'
+            ? 'bg-blue-100 text-blue-600'
             : status === 'complete'
             ? 'bg-green-100 text-green-700'
             : 'bg-red-100 text-red-700'

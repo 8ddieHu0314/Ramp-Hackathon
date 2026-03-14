@@ -55,14 +55,13 @@ export function WizardShell() {
 
       {!isLastStep && (
         <div className="flex items-center justify-between pt-2">
-          <Button
-            variant="ghost"
-            onClick={prevStep}
-            disabled={currentStep === 0}
-          >
-            <ChevronLeft className="mr-1 h-4 w-4" />
-            Back
-          </Button>
+          {currentStep > 0 && (
+            <Button variant="ghost" onClick={prevStep}>
+              <ChevronLeft className="mr-1 h-4 w-4" />
+              Back
+            </Button>
+          )}
+          {currentStep === 0 && <span />}
           <Button onClick={nextStep} disabled={isNextDisabled}>
             Next
             <ChevronRight className="ml-1 h-4 w-4" />
