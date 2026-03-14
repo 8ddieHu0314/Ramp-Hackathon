@@ -81,41 +81,10 @@ def diff_github(old: dict | None, new: dict | None, repo: str) -> dict | None:
     return changes if changes else None
 
 
-def _describe_region(bbox: tuple | None, size: tuple | None) -> str:
-    """Describe where on the page visual changes occurred."""
-    if not bbox or not size:
-        return "region unknown"
-
-    x1, y1, x2, y2 = bbox
-    _, height = size
-
-    mid_y = (y1 + y2) / 2
-    if mid_y < height * 0.25:
-        vertical = "top (hero/header area)"
-    elif mid_y < height * 0.5:
-        vertical = "upper-middle section"
-    elif mid_y < height * 0.75:
-        vertical = "lower-middle section"
-    else:
-        vertical = "bottom (footer area)"
-
-    change_height = y2 - y1
-    if change_height > height * 0.6:
-        spread = "changes span most of the page"
-    elif change_height > height * 0.3:
-        spread = "changes span a large section"
-    else:
-        spread = f"localized to {vertical}"
-
-    return spread
-
-
 def summarize_diffs(
     website_diffs: dict[str, str | None],
     github_diffs: dict[str, dict | None],
-    screenshot_diffs: dict[str, dict],
     docs_diffs: dict[str, dict] | None = None,
-    min_screenshot_diff_pct: float = 0.0,
     min_website_diff_lines: int = 0,
 ) -> str:
     """Build a text summary of all diffs for the Claude prompt."""
@@ -184,32 +153,17 @@ def summarize_diffs(
     else:
         sections.append("## GitHub Repository Activity\nNo changes detected.\n")
 
-    # Screenshot changes (with noise filtering)
-    ss_changes = {
-        url: d for url, d in screenshot_diffs.items()
-        if d.get("changed") and d.get("diff_percent", 0) >= min_screenshot_diff_pct
-    }
-    if ss_changes:
-        sections.append("## Visual Changes (Screenshots)\n")
-        for url, info in ss_changes.items():
-            pct = info.get("diff_percent", "unknown")
-            region = _describe_region(info.get("diff_bbox"), info.get("new_size"))
-            sections.append(f"- **{url}**: {pct}% pixels changed — {region}\n")
-    else:
-        sections.append("## Visual Changes (Screenshots)\nNo visual changes detected.\n")
-
     return "\n".join(sections)
 
 
 def extract_daily_metrics(
     repo_states: dict[str, dict | None],
     website_diffs: dict[str, str | None],
-    screenshot_diffs: dict[str, dict],
 ) -> dict:
     """Extract key metrics from today's run for historical tracking."""
     from datetime import date
 
-    entry: dict = {"date": date.today().isoformat(), "github": {}, "screenshots": {}, "websites": {}}
+    entry: dict = {"date": date.today().isoformat(), "github": {}, "websites": {}}
 
     for repo, state in repo_states.items():
         if state is None:
@@ -219,11 +173,6 @@ def extract_daily_metrics(
             "forks": state.get("forks", 0),
             "commit_count": len(state.get("recent_commits", [])),
             "issue_count": len(state.get("recent_issues", [])),
-        }
-
-    for url, info in screenshot_diffs.items():
-        entry["screenshots"][url] = {
-            "diff_percent": info.get("diff_percent", 0.0),
         }
 
     for url, diff in website_diffs.items():

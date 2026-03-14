@@ -15,12 +15,12 @@ uv sync                          # Install/update dependencies
 uvicorn main:app --reload        # Dev server on http://localhost:8000
 ```
 
-### Frontend (React + Vite)
+### Frontend (Next.js 14 + Tailwind)
 ```bash
 cd frontend
 npm install                      # Install dependencies
-npm run dev                      # Dev server on http://localhost:5173
-npm run build                    # TypeScript check + production build
+npm run dev                      # Dev server on http://localhost:3000
+npm run build                    # Production build
 npm run lint                     # ESLint
 ```
 
@@ -30,22 +30,20 @@ No test suite exists yet.
 
 **Backend** (`backend/`): FastAPI app with file-based JSON persistence (no database). Projects stored in `backend/data/projects/{project_id}/`.
 
-- `main.py` — App entry, lifespan, CORS (allows `localhost:5173`)
+- `main.py` — App entry, lifespan, CORS (allows `localhost:3000`)
 - `models.py` — Pydantic request/response schemas
 - `routers/` — REST endpoints: projects, runs, reports, schedule, email_settings
-- `services/pipeline.py` — 8-step async pipeline orchestrator (scrape → diff → GitHub → diff → docs → keyword search → screenshots → Claude report generation). Runs in thread pool via `asyncio.to_thread()`
+- `services/pipeline.py` — 7-step async pipeline orchestrator (scrape → diff → GitHub → docs → keyword search → trends → Claude report generation). Runs in thread pool via `asyncio.to_thread()`
 - `services/project_store.py` — JSON file persistence for project configs
 - `services/run_manager.py` — In-memory run status tracking
 - `services/scheduler.py` — APScheduler wrapper for daily cron runs
-- `intel/collectors/` — Data collection: web_scraper (Firecrawl), web_search (Tavily), github_tracker, docs_tracker, screenshot (Playwright)
+- `intel/collectors/` — Data collection: web_scraper (Firecrawl), web_search (Tavily), github_tracker, docs_tracker
 - `intel/analysis/reporter.py` — Claude-powered report generation (claude-sonnet-4-20250514)
-- `intel/analysis/differ.py` — Content/GitHub/screenshot diffing
+- `intel/analysis/differ.py` — Content/GitHub diffing
 - `intel/delivery/emailer.py` — Resend email + Jinja2 templates
 - `intel/state/snapshot.py` — Filesystem snapshot store for day-over-day diffs
 
-**Frontend** (`frontend/`): React 19 + TypeScript + Vite scaffold. Currently boilerplate — UI under development.
-
-**Competitor Email UI** (`competitor-email-ui/`): Separate Next.js 14 + Tailwind project for email template design. Not part of the main app stack.
+**Frontend** (`frontend/`): Next.js 14 + React 18 + Tailwind + shadcn/ui. Multi-step wizard for project setup, dashboard for run monitoring, history page for past submissions. UI components in `components/`, state management via React Context (`lib/wizard-context.tsx`).
 
 ## Key Patterns
 

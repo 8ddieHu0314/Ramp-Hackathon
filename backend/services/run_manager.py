@@ -28,7 +28,7 @@ class RunManager:
             "completed_at": None,
             "current_step": None,
             "steps_completed": 0,
-            "total_steps": 8,
+            "total_steps": 7,
             "error": None,
             "report_id": None,
         }

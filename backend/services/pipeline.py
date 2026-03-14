@@ -13,7 +13,6 @@ from intel.state.snapshot import SnapshotStore
 from intel.collectors.web_scraper import scrape_all
 from intel.collectors.github_tracker import fetch_all_repos
 from intel.collectors.web_search import search_all_keywords
-from intel.collectors.screenshot import capture_and_diff
 from intel.collectors.docs_tracker import track_all_docs
 from intel.analysis.differ import (
     diff_text, diff_github, summarize_diffs,
@@ -65,12 +64,17 @@ def _run_pipeline_sync(project_id: str, run_id: str) -> None:
             if state is not None:
                 store.save_github(repo, state)
 
-        # Step 4: Track competitor docs
+        # Step 4: Track competitor docs (auto-derived from competitor URLs)
         run_manager.update_run(run_id, current_step="Tracking competitor docs", steps_completed=3)
         docs_diffs: dict[str, dict] = {}
-        comp_docs = project.get("competitor_docs", [])
-        if comp_docs:
-            targets = [{"name": d["name"], "sitemap_url": d["sitemap_url"]} for d in comp_docs]
+        if urls:
+            from urllib.parse import urlparse
+            targets = []
+            for url in urls:
+                parsed = urlparse(url)
+                base = f"{parsed.scheme}://{parsed.netloc}"
+                name = parsed.netloc.replace("www.", "")
+                targets.append({"name": name, "sitemap_url": f"{base}/sitemap.xml"})
             docs_diffs = track_all_docs(
                 targets,
                 load_sitemap_fn=store.load_docs_sitemap,
@@ -84,36 +88,19 @@ def _run_pipeline_sync(project_id: str, run_id: str) -> None:
         keywords = project.get("keywords", [])
         search_results = search_all_keywords(keywords) if keywords else {}
 
-        # Step 6: Screenshots
-        run_manager.update_run(run_id, current_step="Capturing screenshots", steps_completed=5)
-        screenshot_diffs: dict[str, dict] = {}
-        screenshot_urls = [c["url"] for c in project.get("competitors", []) if c.get("screenshot", True)]
-        for url in screenshot_urls:
-            current_path = store.get_screenshot_path(url)
-            previous_path = store.load_screenshot(url)
-            temp_previous = None
-            if previous_path:
-                temp_previous = current_path.with_suffix(".prev.png")
-                temp_previous.write_bytes(previous_path.read_bytes())
-            result = capture_and_diff(url, current_path, temp_previous)
-            screenshot_diffs[url] = result
-            if temp_previous and temp_previous.exists():
-                temp_previous.unlink()
-
-        # Step 7: Compute trend metrics
-        run_manager.update_run(run_id, current_step="Computing trend metrics", steps_completed=6)
+        # Step 6: Compute trend metrics
+        run_manager.update_run(run_id, current_step="Computing trend metrics", steps_completed=5)
         metrics_history = store.load_metrics_history()
-        today_metrics = extract_daily_metrics(repo_states, website_diffs, screenshot_diffs)
+        today_metrics = extract_daily_metrics(repo_states, website_diffs)
         metrics_history.append(today_metrics)
         trend_context = format_trend_context(metrics_history)
 
-        # Step 8: Generate report
-        run_manager.update_run(run_id, current_step="Generating report", steps_completed=7)
+        # Step 7: Generate report
+        run_manager.update_run(run_id, current_step="Generating report", steps_completed=6)
         diff_summary = summarize_diffs(
             website_diffs,
             github_diffs,
-            screenshot_diffs,
-            docs_diffs,
+            docs_diffs=docs_diffs,
         )
         if trend_context:
             diff_summary = diff_summary + "\n\n" + trend_context

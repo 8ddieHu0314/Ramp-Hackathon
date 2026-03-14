@@ -16,7 +16,8 @@ async def create_project(req: ProjectCreateRequest):
     # Auto-generate keywords if requested
     if req.auto_generate_keywords and not req.keywords:
         urls = [c.url for c in req.competitors]
-        keywords = generate_keywords(req.product_name, req.product_description, urls)
+        repos = [{"repo": r.repo} for r in req.github_repos]
+        keywords = generate_keywords(req.product_name, req.product_description, urls, github_repos=repos)
         data["keywords"] = keywords
 
     data.pop("auto_generate_keywords", None)

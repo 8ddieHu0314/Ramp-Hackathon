@@ -2,21 +2,15 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 class CompetitorInput(BaseModel):
     url: str
-    screenshot: bool = True
 
 
 class GitHubRepoInput(BaseModel):
     repo: str  # "owner/name" format
-
-
-class DocsTargetInput(BaseModel):
-    name: str
-    sitemap_url: str
 
 
 class ProjectCreateRequest(BaseModel):
@@ -26,9 +20,14 @@ class ProjectCreateRequest(BaseModel):
     additional_context: str = ""
     competitors: list[CompetitorInput] = []
     github_repos: list[GitHubRepoInput] = []
-    competitor_docs: list[DocsTargetInput] = []
     keywords: list[str] = []
     auto_generate_keywords: bool = False
+
+    @model_validator(mode="after")
+    def check_at_least_one_source(self) -> "ProjectCreateRequest":
+        if not self.competitors and not self.github_repos:
+            raise ValueError("At least one competitor URL or GitHub repo must be provided")
+        return self
 
 
 class ProjectResponse(BaseModel):
@@ -39,7 +38,6 @@ class ProjectResponse(BaseModel):
     additional_context: str
     competitors: list[CompetitorInput]
     github_repos: list[GitHubRepoInput]
-    competitor_docs: list[DocsTargetInput]
     keywords: list[str]
     email_enabled: bool = False
     email_address: str | None = None
@@ -64,7 +62,7 @@ class RunStatusResponse(BaseModel):
     completed_at: str | None = None
     current_step: str | None = None
     steps_completed: int = 0
-    total_steps: int = 8
+    total_steps: int = 7
     error: str | None = None
     report_id: str | None = None
 

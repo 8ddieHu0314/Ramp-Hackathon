@@ -26,7 +26,6 @@ List the 3 most important findings from today's data. Each item should be one se
 
 ## Competitor Website Changes
 Analyze any website content changes. Note new features, messaging shifts, pricing changes.
-For screenshot-only changes, describe what likely changed based on the percentage and region affected.
 
 ## Competitor Documentation Changes
 Analyze changes to competitor documentation sites. Focus on what the changes reveal about:

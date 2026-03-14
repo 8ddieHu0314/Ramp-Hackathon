@@ -15,6 +15,7 @@ def generate_keywords(
     product_name: str,
     product_description: str,
     competitor_urls: list[str],
+    github_repos: list[dict] | None = None,
 ) -> list[str]:
     """Generate 5-8 search keywords using Claude."""
     api_key = os.environ.get("ANTHROPIC_API_KEY")
@@ -23,6 +24,7 @@ def generate_keywords(
         return []
 
     competitors_text = "\n".join(f"- {url}" for url in competitor_urls) if competitor_urls else "None provided"
+    repos_text = "\n".join(f"- {r['repo']}" for r in github_repos) if github_repos else "None provided"
 
     prompt = f"""Generate 5-8 search keywords for competitive intelligence monitoring.
 
@@ -30,6 +32,8 @@ Product: {product_name}
 Description: {product_description}
 Competitor URLs:
 {competitors_text}
+GitHub Repos (competitor open-source projects):
+{repos_text}
 
 Return ONLY a JSON array of keyword strings. Each keyword should be 2-5 words that would surface relevant competitive intelligence, industry trends, or product comparisons. Focus on:
 - Product category terms
