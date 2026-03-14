@@ -80,8 +80,7 @@ export function Step3RunAnalysis() {
         </div>
 
         <div className="space-y-4 max-w-lg mx-auto">
-          <SummaryRow label="Project" value={formData.name} />
-          <SummaryRow label="Product" value={`${formData.productName} — ${formData.productDescription}`} />
+          <SummaryRow label="Product" value={`${formData.name} — ${formData.productDescription}`} />
           <SummaryRow
             label="Competitors"
             value={formData.competitors.map((c) => c.url).filter(Boolean).join(', ') || 'None'}

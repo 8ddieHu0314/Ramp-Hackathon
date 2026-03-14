@@ -7,7 +7,6 @@ const TOTAL_STEPS = 3
 
 const defaultFormData: WizardFormData = {
   name: '',
-  productName: '',
   productDescription: '',
   additionalContext: '',
   competitors: [],

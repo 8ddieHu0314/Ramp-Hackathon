@@ -27,7 +27,7 @@ export async function createProject(form: WizardFormData): Promise<ProjectRespon
     method: 'POST',
     body: JSON.stringify({
       name: form.name,
-      product_name: form.productName,
+      product_name: form.name,
       product_description: form.productDescription,
       additional_context: form.additionalContext,
       competitors: form.competitors.map((c) => ({ url: c.url })),
