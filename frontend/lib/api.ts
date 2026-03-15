@@ -5,7 +5,6 @@ import type {
   ReportSummary,
   ReportDetail,
 } from './types'
-import { cleanHostname } from './utils'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
