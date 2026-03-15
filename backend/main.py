@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
     scheduler_service.shutdown()
 
 
-app = FastAPI(title="Market Intel API", lifespan=lifespan)
+app = FastAPI(title="CompetitorIQ API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

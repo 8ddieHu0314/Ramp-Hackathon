@@ -116,7 +116,7 @@ def _run_pipeline_sync(project_id: str, run_id: str) -> None:
 
         # Render HTML
         today = date.today().isoformat()
-        subject = f"[Market Intel] {project['product_name']} — {today}"
+        subject = f"[CompetitorIQ] {project['product_name']} — {today}"
         report_html = render_email(report_md, subject)
 
         # Save report
