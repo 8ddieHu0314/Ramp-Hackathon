@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, model_validator
 
 
@@ -44,7 +46,7 @@ class ProjectResponse(BaseModel):
     email_from: str = "intel@market-intel.dev"
     schedule_enabled: bool = False
     schedule_hour: int = 8
-    schedule_frequency: str = "daily"
+    schedule_frequency: Literal["daily", "weekly", "biweekly"] = "daily"
     created_at: str
     last_run: str | None = None
 
@@ -58,7 +60,7 @@ class RunTriggerResponse(BaseModel):
 class RunStatusResponse(BaseModel):
     run_id: str
     project_id: str
-    status: str  # pending | running | completed | failed
+    status: Literal["pending", "running", "completed", "failed"]
     started_at: str | None = None
     completed_at: str | None = None
     current_step: str | None = None
@@ -87,13 +89,13 @@ class ReportDetail(BaseModel):
 class ScheduleRequest(BaseModel):
     enabled: bool
     hour: int = 8
-    frequency: str = "daily"  # daily | weekly | biweekly
+    frequency: Literal["daily", "weekly", "biweekly"] = "daily"
 
 
 class ScheduleResponse(BaseModel):
     enabled: bool
     hour: int
-    frequency: str = "daily"
+    frequency: Literal["daily", "weekly", "biweekly"] = "daily"
     next_run: str | None = None
 
 

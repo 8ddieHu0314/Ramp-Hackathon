@@ -46,15 +46,17 @@ export function Step3RunAnalysis() {
 
       // Configure email & schedule if email provided
       if (formData.emailEnabled && formData.emailAddress.trim()) {
-        await setEmailSettings(project.id, {
-          enabled: true,
-          address: formData.emailAddress.trim(),
-        })
-        await setSchedule(project.id, {
-          enabled: true,
-          hour: 8,
-          frequency: formData.frequency,
-        })
+        await Promise.all([
+          setEmailSettings(project.id, {
+            enabled: true,
+            address: formData.emailAddress.trim(),
+          }),
+          setSchedule(project.id, {
+            enabled: true,
+            hour: 8,
+            frequency: formData.frequency,
+          }),
+        ])
       }
 
       const { run_id } = await triggerRun(project.id)
@@ -64,7 +66,10 @@ export function Step3RunAnalysis() {
       pollRef.current = setInterval(async () => {
         try {
           const status = await getRunStatus(project.id, run_id)
-          setRunStatus(status)
+          setRunStatus((prev) => {
+            if (prev?.steps_completed === status.steps_completed && prev?.status === status.status) return prev
+            return status
+          })
 
           if (status.status === 'completed') {
             cleanup()

@@ -8,13 +8,10 @@ import { CompetitorCard } from '../partials/CompetitorCard'
 import { AnimatePresence } from 'framer-motion'
 import { Plus, X } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { generateId } from '@/lib/utils'
 
 const MAX_COMPETITORS = 6
 const MAX_REPOS = 6
-
-function generateId() {
-  return Math.random().toString(36).slice(2, 9)
-}
 
 export function Step2Competitors() {
   const { formData, updateFormData } = useWizard()

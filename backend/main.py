@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import logging
 from dotenv import load_dotenv
+load_dotenv()  # must run before other imports that read env vars
 
-load_dotenv()
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI

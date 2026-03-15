@@ -5,11 +5,7 @@ import { listProjects } from '@/lib/api'
 import type { ProjectResponse } from '@/lib/types'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-}
+import { formatDate, cleanHostname } from '@/lib/utils'
 
 export default function HistoryPage() {
   const [projects, setProjects] = useState<ProjectResponse[]>([])
@@ -54,7 +50,7 @@ export default function HistoryPage() {
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                   <p className="font-semibold text-foreground">{project.name}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{formatDate(project.created_at)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{formatDate(project.created_at, 'long')}</p>
                 </div>
               </div>
 
@@ -73,7 +69,7 @@ export default function HistoryPage() {
                         key={c.url}
                         className="inline-flex items-center rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-foreground"
                       >
-                        {new URL(c.url).hostname.replace('www.', '')}
+                        {cleanHostname(c.url)}
                       </span>
                     ))}
                   </div>
@@ -98,7 +94,7 @@ export default function HistoryPage() {
 
               {project.last_run && (
                 <p className="text-xs text-muted-foreground">
-                  Last run: {formatDate(project.last_run)}
+                  Last run: {formatDate(project.last_run, 'long')}
                 </p>
               )}
             </Link>

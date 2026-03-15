@@ -5,6 +5,7 @@ import type {
   ReportSummary,
   ReportDetail,
 } from './types'
+import { cleanHostname } from './utils'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -22,16 +23,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 // ── Projects ──
 
-function cleanName(url: string): string {
-  try {
-    return new URL(url).hostname.replace('www.', '')
-  } catch {
-    return url
-  }
-}
-
 export async function createProject(form: WizardFormData): Promise<ProjectResponse> {
-  const name = cleanName(form.productUrl)
+  const name = cleanHostname(form.productUrl)
   return request('/api/projects', {
     method: 'POST',
     body: JSON.stringify({
@@ -56,7 +49,7 @@ export async function getProject(projectId: string): Promise<ProjectResponse> {
 }
 
 export async function deleteProject(projectId: string): Promise<void> {
-  await fetch(`${API_BASE}/api/projects/${projectId}`, { method: 'DELETE' })
+  await request(`/api/projects/${projectId}`, { method: 'DELETE' })
 }
 
 // ── Runs ──
