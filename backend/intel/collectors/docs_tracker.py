@@ -25,7 +25,11 @@ def fetch_sitemap(sitemap_url: str) -> dict[str, str | None]:
         logger.exception("Failed to fetch sitemap %s", sitemap_url)
         return {}
 
-    root = ET.fromstring(resp.text)
+    try:
+        root = ET.fromstring(resp.text)
+    except ET.ParseError:
+        logger.warning("Invalid XML in sitemap %s, skipping", sitemap_url)
+        return {}
 
     # Check if this is a sitemap index (contains <sitemap> children)
     nested = root.findall("sm:sitemap/sm:loc", NS)
@@ -93,10 +97,11 @@ def track_docs(
 
     logger.info("Found %d pages in %s sitemap", len(current_sitemap), name)
 
-    # First run — scrape ALL pages to establish content baseline
+    # First run — scrape pages to establish content baseline (cap at 20 to conserve API credits)
     if previous_sitemap is None:
-        logger.info("First run for %s docs — scraping all %d pages for baseline", name, len(current_sitemap))
-        for url in current_sitemap:
+        pages = list(current_sitemap)[:20]
+        logger.info("First run for %s docs — scraping %d/%d pages for baseline", name, len(pages), len(current_sitemap))
+        for url in pages:
             logger.info("  Baseline scrape: %s", url)
             content = scrape_url(url)
             if content:
