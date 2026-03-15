@@ -24,12 +24,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 // ── Projects ──
 
 export async function createProject(form: WizardFormData): Promise<ProjectResponse> {
-  const name = cleanHostname(form.productUrl)
   return request('/api/projects', {
     method: 'POST',
     body: JSON.stringify({
-      name,
-      product_name: name,
+      name: form.productName,
+      product_name: form.productName,
       product_description: form.productDescription,
       additional_context: form.additionalContext,
       competitors: form.competitors.map((c) => ({ url: c.url })),

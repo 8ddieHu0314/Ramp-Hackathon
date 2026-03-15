@@ -6,6 +6,7 @@ import type { WizardFormData } from './types'
 const TOTAL_STEPS = 3
 
 const defaultFormData: WizardFormData = {
+  productName: '',
   productUrl: '',
   productDescription: '',
   additionalContext: '',

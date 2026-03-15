@@ -11,6 +11,7 @@ export interface GitHubRepoInput {
 }
 
 export interface WizardFormData {
+  productName: string
   productUrl: string
   productDescription: string
   additionalContext: string
