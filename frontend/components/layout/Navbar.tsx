@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils'
 const navLinks = [
   { href: '/wizard', label: 'Wizard' },
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/history', label: 'History' },
 ]
 
 export function Navbar() {
@@ -20,7 +19,7 @@ export function Navbar() {
           <span className="rounded-md bg-primary px-2 py-0.5 text-primary-foreground text-xs font-bold tracking-wide">
             INTEL
           </span>
-          <span className="text-foreground">Market Intel</span>
+          <span className="text-foreground">CompetitorIQ</span>
         </Link>
         <nav className="flex items-center gap-1">
           {navLinks.map(({ href, label }) => {

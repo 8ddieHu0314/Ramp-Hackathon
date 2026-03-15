@@ -50,11 +50,11 @@ export default function ProjectDetailPage() {
     <div className="space-y-6">
       <div>
         <Link
-          href="/history"
+          href="/dashboard"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-3"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to History
+          Back to Dashboard
         </Link>
         <h1 className="text-2xl font-bold tracking-tight">{project.product_name}</h1>
         <p className="text-sm text-muted-foreground mt-1">
